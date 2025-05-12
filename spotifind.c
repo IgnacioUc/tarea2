@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>  // Para funciones de mayúsculas/minúsculas
+#include <ctype.h>
 
 #define MAX_CANCIONES 10000
 
@@ -17,7 +17,7 @@ typedef struct {
 Cancion* canciones[MAX_CANCIONES];
 int cantidad_canciones = 0;
 
-// Función para comparación de strings sin importar mayúsculas/minúsculas
+// Función para comparar strings sin distinguir mayúsculas/minúsculas
 int compararStrings(const char* str1, const char* str2) {
     while (*str1 && *str2) {
         if (tolower(*str1) != tolower(*str2)) {
@@ -32,15 +32,14 @@ int compararStrings(const char* str1, const char* str2) {
 void cargarCanciones(const char* nombreArchivo) {
     FILE* archivo = fopen(nombreArchivo, "r");
     if (!archivo) {
-        printf("No se pudo abrir el archivo: %s\n", nombreArchivo);
+        printf("Error: No se pudo abrir el archivo %s\n", nombreArchivo);
         return;
     }
 
     char linea[1024];
     fgets(linea, sizeof(linea), archivo); // Saltar encabezado
 
-    // Corrección aquí: paréntesis y llaves balanceadas
-    while (fgets(linea, sizeof(linea), archivo) != NULL) {  // Se añade != NULL y se cierra correctamente
+    while (fgets(linea, sizeof(linea), archivo) != NULL) {
         Cancion* c = malloc(sizeof(Cancion));
         char* token;
 
@@ -56,83 +55,117 @@ void cargarCanciones(const char* nombreArchivo) {
     }
 
     fclose(archivo);
-    printf("Se cargaron %d canciones.\n", cantidad_canciones);
+    printf("✓ Se cargaron %d canciones.\n", cantidad_canciones);
 }
 
 void buscarPorGenero(const char* genero) {
     int encontrados = 0;
+    printf("\n🔍 Resultados para género '%s':\n", genero);
     for (int i = 0; i < cantidad_canciones; i++) {
         if (compararStrings(canciones[i]->track_genre, genero)) {
-            printf("🎵 %s - %s [%s]\n", 
-                   canciones[i]->artists, 
-                   canciones[i]->track_name, 
-                   canciones[i]->album_name);
+            printf("\n🎵 Canción #%d", encontrados + 1);
+            printf("\n   Artista: %s", canciones[i]->artists);
+            printf("\n   Álbum: %s", canciones[i]->album_name);
+            printf("\n   Tempo: %.2f BPM\n", canciones[i]->tempo);
             encontrados++;
         }
     }
-    printf("--> Se encontraron %d canciones del género '%s'.\n", encontrados, genero);
+    printf("\n✅ Total: %d canciones.\n", encontrados);
 }
 
-// Función para buscar por artista (NUEVA)
 void buscarPorArtista(const char* artista) {
     int encontrados = 0;
-    printf("\n🔍 Resultados para el artista '%s':\n", artista);
+    printf("\n🔍 Resultados para artista '%s':\n", artista);
     for (int i = 0; i < cantidad_canciones; i++) {
         if (compararStrings(canciones[i]->artists, artista)) {
-            printf("\n📌 Canción #%d\n", encontrados + 1);
-            printf("   Artista: %s\n", canciones[i]->artists);
-            printf("   Canción: %s\n", canciones[i]->track_name);
-            printf("   Álbum: %s\n", canciones[i]->album_name);
-            printf("   Género: %s\n", canciones[i]->track_genre);
-            printf("   Tempo: %.2f BPM\n", canciones[i]->tempo);
+            printf("\n🎵 Canción #%d", encontrados + 1);
+            printf("\n   Nombre: %s", canciones[i]->track_name);
+            printf("\n   Álbum: %s", canciones[i]->album_name);
+            printf("\n   Género: %s", canciones[i]->track_genre);
+            printf("\n   Tempo: %.2f BPM\n", canciones[i]->tempo);
             encontrados++;
         }
     }
-    printf("\n--> Total: %d canciones encontradas.\n", encontrados);
+    printf("\n✅ Total: %d canciones.\n", encontrados);
+}
+
+void buscarPorTempo() {
+    int opcion;
+    printf("\n🎶 Buscar por tempo:");
+    printf("\n1. Lentas (<80 BPM)");
+    printf("\n2. Moderadas (80-120 BPM)");
+    printf("\n3. Rápidas (>120 BPM)");
+    printf("\nSeleccione una opción: ");
+    scanf("%d", &opcion);
+    getchar();
+
+    float min = 0, max = 0;
+    const char* tipo = "";
+
+    switch (opcion) {
+        case 1: min = 0;   max = 80;  tipo = "Lentas"; break;
+        case 2: min = 80;  max = 120; tipo = "Moderadas"; break;
+        case 3: min = 120; max = 999; tipo = "Rápidas"; break;
+        default: printf("❌ Opción inválida.\n"); return;
+    }
+
+    int encontrados = 0;
+    printf("\n🔍 Canciones %s (%.0f-%.0f BPM):\n", tipo, min, max);
+    for (int i = 0; i < cantidad_canciones; i++) {
+        if (canciones[i]->tempo >= min && canciones[i]->tempo <= max) {
+            printf("\n🎵 Canción #%d", encontrados + 1);
+            printf("\n   Artista: %s", canciones[i]->artists);
+            printf("\n   Nombre: %s", canciones[i]->track_name);
+            printf("\n   Tempo: %.2f BPM\n", canciones[i]->tempo);
+            encontrados++;
+        }
+    }
+    printf("\n✅ Total: %d canciones %s.\n", encontrados, tipo);
 }
 
 int main() {
     int opcion;
-    char ruta[256], genero[50], artista[100];  // 'artista' añadido
+    char input[256];
 
+    printf("===== 🎧 Spotifind =====\n");
     do {
-        printf("\n=== Spotifind ===\n");
-        printf("1. Cargar canciones\n");
-        printf("2. Buscar por género\n");
-        printf("3. Buscar por artista\n");  // Opción nueva
-        printf("0. Salir\n");
-        printf("Seleccione una opción: ");
+        printf("\nMenú principal:");
+        printf("\n1. Cargar canciones");
+        printf("\n2. Buscar por género");
+        printf("\n3. Buscar por artista");
+        printf("\n4. Buscar por tempo");
+        printf("\n0. Salir");
+        printf("\nSeleccione una opción: ");
         scanf("%d", &opcion);
-        getchar(); // Limpiar el buffer
+        getchar();
 
         switch (opcion) {
             case 1:
-                printf("Ingrese la ruta del archivo CSV: ");
-                fgets(ruta, sizeof(ruta), stdin);
-                ruta[strcspn(ruta, "\n")] = 0;
-                cargarCanciones(ruta);
+                printf("\nIngrese la ruta del archivo CSV: ");
+                fgets(input, sizeof(input), stdin);
+                input[strcspn(input, "\n")] = '\0';
+                cargarCanciones(input);
                 break;
-
             case 2:
-                printf("Ingrese el género a buscar: ");
-                fgets(genero, sizeof(genero), stdin);
-                genero[strcspn(genero, "\n")] = 0;
-                buscarPorGenero(genero);
+                printf("\nIngrese el género a buscar: ");
+                fgets(input, sizeof(input), stdin);
+                input[strcspn(input, "\n")] = '\0';
+                buscarPorGenero(input);
                 break;
-
-            case 3:  // Nuevo caso para buscar por artista
-                printf("Ingrese el nombre del artista: ");
-                fgets(artista, sizeof(artista), stdin);
-                artista[strcspn(artista, "\n")] = 0;
-                buscarPorArtista(artista);
+            case 3:
+                printf("\nIngrese el artista a buscar: ");
+                fgets(input, sizeof(input), stdin);
+                input[strcspn(input, "\n")] = '\0';
+                buscarPorArtista(input);
                 break;
-
+            case 4:
+                buscarPorTempo();
+                break;
             case 0:
-                printf("¡Hasta luego!\n");
+                printf("\n🎶 ¡Hasta pronto!\n");
                 break;
-
             default:
-                printf("Opción no válida.\n");
+                printf("\n❌ Opción inválida.\n");
         }
     } while (opcion != 0);
 
