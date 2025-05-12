@@ -1,5 +1,3 @@
-# tarea2
-
 # tarea2# 🎧 Spotifind
 
 Spotifind es una aplicación en lenguaje C que permite cargar canciones desde un archivo CSV y realizar búsquedas por género, artista o tempo. Está diseñada para ejecutarse en consola con una interfaz sencilla y funcional.
@@ -10,28 +8,6 @@ Spotifind es una aplicación en lenguaje C que permite cargar canciones desde un
 - Un archivo CSV con canciones que tenga el siguiente formato:
 
 
-## ⚙️ Compilación
-
-Puedes compilar el programa usando:
-
-```bash
-gcc -o spotifind spotifind.c
-
-## ejecucion
-
-./spotifind
-
-Aparecerá un menú con las siguientes opciones:
-
-Cargar canciones: pide la ruta del archivo CSV y carga los datos.
-
-Buscar por género: muestra las canciones que pertenecen a un género específico.
-
-Buscar por artista: busca canciones según el artista indicado.
-
-Buscar por tempo: filtra canciones por su velocidad (BPM).
-
-Salir: termina el programa.
 
 ## 🔍 Búsquedas disponibles
 Por género: busca canciones que coincidan con el género ingresado (sin distinguir mayúsculas o minúsculas).
@@ -62,3 +38,29 @@ No se valida si la entrada del usuario contiene caracteres no válidos.
 
 ## 👥 Participantes
 Ignacio Calderón
+
+
+## ⚙️ Compilación
+
+Puedes compilar el programa usando:
+
+```bash
+gcc -o spotifind spotifind.c
+
+## ejecucion
+
+./spotifind
+
+Aparecerá un menú con las siguientes opciones:
+
+Cargar canciones: pide la ruta del archivo CSV y carga los datos.
+
+Buscar por género: muestra las canciones que pertenecen a un género específico.
+
+Buscar por artista: busca canciones según el artista indicado.
+
+Buscar por tempo: filtra canciones por su velocidad (BPM).
+
+Salir: termina el programa.
+
+
